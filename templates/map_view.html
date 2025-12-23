@@ -1,0 +1,279 @@
+﻿<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Harita | IMC</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <style>
+        /* --- ORTAK TASARIM DİLİ (Diğer sayfayla uyumlu) --- */
+        :root {
+            --primary-color: #00b894;
+            --dark-color: #2d3436;
+            --bg-color: #f5f6fa;
+            --sidebar-width: 280px;
+            --card-radius: 24px;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            font-family: 'Inter', sans-serif;
+            color: var(--dark-color);
+            margin: 0;
+            overflow: hidden; /* Harita taşmasın diye */
+        }
+
+        .layout-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: white;
+            border-right: 1px solid #eee;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+        }
+
+        .navbar-logo {
+            height: 110px;
+            width: auto;
+            object-fit: contain;
+            margin-bottom: 10px;
+        }
+
+        .user-info-box {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .user-name {
+            font-weight: 800;
+            font-size: 1.2rem;
+            margin-top: 5px;
+        }
+
+        .user-badge {
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 5px 12px;
+            border-radius: 50px;
+        }
+
+        .nav-pills .nav-link {
+            color: #636e72;
+            font-weight: 600;
+            padding: 14px 20px;
+            border-radius: 16px;
+            margin-bottom: 8px;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+        }
+
+            .nav-pills .nav-link i {
+                width: 35px;
+                font-size: 1.2rem;
+            }
+
+            .nav-pills .nav-link:hover {
+                background: #f1f2f6;
+                color: var(--dark-color);
+            }
+
+            .nav-pills .nav-link.active {
+                background: var(--dark-color);
+                color: white;
+                box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .top-bar {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        .search-container {
+            flex: 1;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 18px 25px;
+            border-radius: 20px;
+            border: 1px solid #eee;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.02);
+        }
+
+        .profile-box {
+            background: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 20px;
+            border: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            transition: 0.3s;
+        }
+
+            .profile-box:hover {
+                transform: scale(1.05);
+                box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            }
+
+        /* Harita Alanı */
+        #map {
+            flex: 1;
+            width: 100%;
+            border-radius: var(--card-radius);
+            z-index: 1;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        /* --- MOBİL NAVİGASYON (GÜNCELLENMİŞ) --- */
+        .mobile-nav {
+            display: none;
+        }
+
+        @media (max-width: 991px) {
+            .sidebar {
+                display: none;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+                padding-bottom: 100px; /* Nav bar için boşluk */
+            }
+
+            .mobile-nav {
+                display: flex;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                background: white;
+                padding: 12px 0;
+                justify-content: space-around;
+                border-top: 1px solid #eee;
+                z-index: 1000;
+            }
+
+            .mobile-item {
+                text-align: center;
+                color: #b2bec3;
+                text-decoration: none;
+                font-size: 0.75rem;
+                font-weight: 700;
+            }
+
+                .mobile-item i {
+                    font-size: 1.4rem;
+                    display: block;
+                    margin-bottom: 3px;
+                }
+
+                .mobile-item.active {
+                    color: var(--primary-color);
+                }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="layout-container">
+        <div class="sidebar d-none d-lg-flex">
+            <div class="user-info-box">
+                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="navbar-logo">
+                <div class="user-name">{{ kullanici }}</div>
+                <span class="badge bg-{{ rozet_renk }} user-badge">{{ rozet }}</span>
+            </div>
+
+            <div class="nav flex-column nav-pills">
+                <a href="/ogrenci" class="nav-link"><i class="fa-solid fa-compass"></i> Keşfet</a>
+                <a href="/harita" class="nav-link active"><i class="fa-solid fa-map-location-dot"></i> Harita</a>
+                <a href="/favorilerim" class="nav-link"><i class="fa-solid fa-heart"></i> Favoriler</a>
+                <a href="/siparislerim" class="nav-link"><i class="fa-solid fa-receipt"></i> Siparişlerim</a>
+            </div>
+
+            <div class="mt-auto nav flex-column nav-pills">
+                <a href="/ayarlar" class="nav-link"><i class="fa-solid fa-gear"></i> Ayarlar</a>
+                <a href="/cikis" class="nav-link text-danger"><i class="fa-solid fa-power-off"></i> Çıkış Yap</a>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="top-bar d-none d-lg-flex">
+                <div class="search-container">
+                    <input type="text" class="search-input" placeholder="Konum veya restoran ara...">
+                </div>
+                <a href="/ayarlar" class="profile-box shadow-sm">
+                    <img src="/static/uploads/{{ session.get('foto', 'default.png') }}" style="width:100%; height:100%; object-fit:cover;">
+                </a>
+            </div>
+
+            <div id="map"></div>
+        </div>
+    </div>
+
+    <div class="mobile-nav">
+        <a href="/ogrenci" class="mobile-item">
+            <i class="fa-solid fa-compass"></i>Keşfet
+        </a>
+
+        <a href="/harita" class="mobile-item active">
+            <i class="fa-solid fa-map-location-dot"></i>Harita
+        </a>
+
+        <a href="/ayarlar" class="mobile-item" style="position: relative; bottom: 5px;">
+            <img src="{{ url_for('static', filename='uploads/' + session.get('foto', 'default.png')) }}"
+                 style="width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 2px solid #dfe6e9; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+            <span style="display: block; font-size: 0.7rem; margin-top: 2px;">Ben</span>
+        </a>
+
+        <a href="/favorilerim" class="mobile-item">
+            <i class="fa-solid fa-heart"></i>Favoriler
+        </a>
+
+        <a href="/siparislerim" class="mobile-item">
+            <i class="fa-solid fa-receipt"></i>Sipariş
+        </a>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        var map = L.map('map').setView([{{ enlem }}, {{ boylam }}], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+        L.marker([{{ enlem }}, {{ boylam }}]).addTo(map)
+            .bindPopup('<div style="text-align:center;"><b>Buradasınız</b><br>Konumunuz</div>')
+            .openPopup();
+    </script>
+</body>
+</html>

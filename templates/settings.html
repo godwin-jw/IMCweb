@@ -1,0 +1,289 @@
+﻿<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ayarlar | IMC</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <style>
+        :root { --primary-color: #00b894; --dark-color: #2d3436; --bg-color: #f5f6fa; }
+        html { overflow-y: scroll !important; }
+        body { 
+            background-color: var(--bg-color); 
+            font-family: 'Inter', sans-serif; 
+            padding: 20px; 
+            min-height: 100vh; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+        }
+
+        /* ANA KONTEYNER */
+        .settings-container {
+            max-width: 900px; width: 100%; background: white; border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.05); overflow: hidden; display: flex;
+            position: relative;
+            animation: fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* PANELE DÖN BUTONU */
+        .btn-panel-back {
+            position: absolute; top: 20px; right: 25px; padding: 10px 20px;
+            background: #f1f2f6; color: var(--dark-color); text-decoration: none;
+            border-radius: 50px; font-size: 0.85rem; font-weight: 700; z-index: 1000;
+            display: flex; align-items: center; gap: 8px; transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+        .btn-panel-back:hover {
+            background: var(--dark-color); color: white; transform: translateX(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .btn-panel-back i { transition: transform 0.3s ease; }
+        .btn-panel-back:hover i { transform: translateX(-3px); }
+
+        /* SIDEBAR TASARIMI */
+        .settings-sidebar { 
+            background: #f8f9fa; width: 250px; padding: 30px; 
+            flex-shrink: 0; border-right: 1px solid #eee; 
+            display: flex; flex-direction: column; 
+        }
+        .nav-pills .nav-link { 
+            color: #636e72; font-weight: 600; padding: 12px 15px; 
+            border-radius: 12px; margin-bottom: 8px; transition: 0.2s; 
+            display: flex; align-items: center; border: 1px solid transparent; 
+        }
+        .nav-pills .nav-link i { width: 30px; text-align: center; margin-right: 5px; }
+        .nav-pills .nav-link.active { background: var(--dark-color); color: white; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        
+        /* ÇIKIŞ BUTONU */
+        .btn-logout-sidebar {
+            color: #dc3545 !important; font-weight: 700; 
+            background: rgba(220, 53, 69, 0.05); 
+            margin-top: 15px; border: 1px solid rgba(220, 53, 69, 0.1) !important;
+        }
+        .btn-logout-sidebar:hover { background: #dc3545 !important; color: white !important; }
+
+        /* İÇERİK */
+        .settings-content { flex: 1; padding: 40px; }
+        .profile-img { width: 100px; height: 100px; object-fit: cover; border-radius: 50%; border: 4px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.1); background-color: #eee; }
+        .btn-save { background: var(--dark-color); color: white; padding: 12px; border-radius: 12px; border: none; width: 100%; font-weight: 700; transition: 0.2s; }
+        .btn-save:hover { background: black; transform: translateY(-2px); }
+
+        /* ROZET KARTI (Yeni Eklendi) */
+        .badge-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+            border: 1px solid #eee;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+        }
+
+        .progress-bar-custom {
+            height: 12px;
+            border-radius: 50px;
+            background-color: #e9ecef;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 50px;
+            transition: width 1s ease-in-out;
+            background-size: 40px 40px;
+            background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+            animation: progress-stripes 1s linear infinite;
+        }
+
+        @keyframes progress-stripes {
+            from { background-position: 40px 0; }
+            to { background-position: 0 0; }
+        }
+
+        /* MOBİL UYUM */
+        .mobile-bottom-nav { display: none !important; }
+
+        @media (max-width: 991px) {
+            .settings-container { flex-direction: column; margin-bottom: 80px; }
+            .settings-sidebar { width: 100%; border-right: none; border-bottom: 1px solid #eee; }
+            .btn-panel-back { top: 15px; right: 15px; padding: 8px 15px; font-size: 0.75rem; }
+            body { padding-bottom: 100px !important; align-items: flex-start; }
+            
+            .mobile-bottom-nav {
+                display: flex !important; position: fixed; bottom: 0; left: 0; width: 100%;
+                background: white; box-shadow: 0 -5px 20px rgba(0,0,0,0.05); z-index: 9999;
+                padding: 10px 20px 25px 20px; justify-content: space-between; align-items: center;
+                border-top-left-radius: 20px; border-top-right-radius: 20px;
+            }
+            .mobile-nav-item { display: flex; flex-direction: column; align-items: center; text-decoration: none; color: #b2bec3; font-size: 0.75rem; font-weight: 600; width: 60px; }
+            .mobile-nav-item i { font-size: 1.4rem; margin-bottom: 4px; }
+            .mobile-nav-item.active { color: var(--primary-color); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="settings-container">
+        <a href="{{ url_for('esnaf_paneli') if u['rol'] == 'esnaf' else url_for('ogrenci_paneli') }}" class="btn-panel-back">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span>Panele Dön</span>
+        </a>
+
+        <div class="settings-sidebar">
+            <h4 class="fw-bold mb-4 px-2">Ayarlar</h4>
+            <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist">
+                <button class="nav-link active" id="v-pills-profile-tab" data-bs-toggle="pill" data-bs-target="#v-pills-profile" type="button"><i class="fa-regular fa-user"></i> Profil</button>
+                <button class="nav-link" id="v-pills-security-tab" data-bs-toggle="pill" data-bs-target="#v-pills-security" type="button"><i class="fa-solid fa-shield-halved"></i> Güvenlik</button>
+                
+                <a href="/cikis" class="nav-link btn-logout-sidebar justify-content-center">
+                    <i class="fa-solid fa-power-off me-2"></i> Çıkış Yap
+                </a>
+            </div>
+            <div class="mt-auto text-center pt-4 d-none d-lg-block">
+                <small class="text-muted" style="font-size: 11px;">IMC v2.0 Final</small>
+            </div>
+        </div>
+
+        <div class="settings-content">
+            <form action="/ayarlar" method="POST" enctype="multipart/form-data">
+                <div class="tab-content" id="v-pills-tabContent">
+                    
+                    <div class="tab-pane fade show active" id="v-pills-profile">
+                        <h3 class="fw-bold mb-4">Profil Bilgileri</h3>
+                        
+                        <div class="d-flex align-items-center mb-4">
+                             <div class="position-relative">
+                                <img src="{{ url_for('static', filename='uploads/' + (u['profil_resmi'] if u['profil_resmi'] else 'default.png')) }}" 
+                                     class="profile-img" id="previewImg">
+                                
+                                <label for="fileInput" class="position-absolute bottom-0 end-0 bg-success text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; cursor: pointer; border: 3px solid white;">
+                                    <i class="fa-solid fa-camera small"></i>
+                                </label>
+                                <input type="file" name="profil_foto" id="fileInput" class="d-none" accept="image/*" onchange="previewFile()">
+                            </div>
+                            <div class="ms-3">
+                                <h5 class="fw-bold m-0">{{ u['ad_soyad'] }}</h5>
+                                <span class="badge bg-light text-dark border mt-1 small">{{ u['rol'].upper() }}</span>
+                            </div>
+                        </div>
+
+                        <div class="badge-card">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <small class="text-muted fw-bold d-block text-uppercase" style="font-size: 0.7rem;">Mevcut Rozet</small>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="badge bg-{{ rozet.renk }} fs-6">{{ rozet.isim }}</span>
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <small class="text-muted fw-bold d-block text-uppercase" style="font-size: 0.7rem;">Sonraki Hedef</small>
+                                    <span class="fw-bold text-dark small">{{ rozet.sonraki }}</span>
+                                </div>
+                            </div>
+
+                            <div class="progress-bar-custom">
+                                <div class="progress-fill bg-{{ rozet.renk }}" style="width: {{ rozet.yuzde }}%;"></div>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-normal text-dark fs-6">Sipariş: <small class="text-dark fw-bold fs-6">{{ rozet.sayi }}</small></span>
+                                <span class="text-dark small fw-bold">Hedef: {{ rozet.hedef }}</span>
+                            </div>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-6"><label class="form-label small fw-bold text-muted">Ad Soyad</label><input type="text" name="ad_soyad" class="form-control" value="{{ u['ad_soyad'] }}" required></div>
+                            <div class="col-md-6"><label class="form-label small fw-bold text-muted">E-Posta</label><input type="email" name="email" class="form-control" value="{{ u['email'] }}" required></div>
+                        </div>
+                        <div class="mt-4">
+                            <label class="form-label small fw-bold text-muted">Konum Ayarları</label>
+                            <div class="d-flex align-items-center justify-content-between p-3 border rounded-4 bg-light">
+                                <div class="d-flex align-items-center">
+                                    <i class="fa-solid fa-location-dot fa-lg text-primary me-3"></i>
+                                    <div><h6 class="fw-bold mb-0">Kayıtlı Konum</h6><small class="text-muted" id="locationStatus">{{ u['enlem'] }}, {{ u['boylam'] }}</small></div>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-white border rounded-pill px-3 fw-bold shadow-sm" onclick="konumGuncelle()">Yenile</button>
+                            </div>
+                            <input type="hidden" name="enlem" id="latInput" value="{{ u['enlem'] }}">
+                            <input type="hidden" name="boylam" id="lngInput" value="{{ u['boylam'] }}">
+                        </div>
+                        <div class="mt-4"><button type="submit" class="btn-save shadow-sm">Bilgileri Güncelle</button></div>
+                    </div>
+
+                    <div class="tab-pane fade" id="v-pills-security">
+                        <h3 class="fw-bold mb-4">Güvenlik</h3>
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold text-muted">Yeni Şifre</label>
+                            <input type="password" name="yeni_sifre" class="form-control p-3 rounded-3" placeholder="Boş bırakırsanız değişmez">
+                        </div>
+                        <button type="submit" class="btn-save mb-5">Şifreyi Güncelle</button>
+                        
+                        <div class="p-3 bg-danger bg-opacity-10 rounded-4 border border-danger border-opacity-25">
+                            <h6 class="fw-bold text-danger"><i class="fa-solid fa-circle-exclamation me-2"></i>Tehlikeli Alan</h6>
+                            <p class="small text-muted mb-2">Hesabınızı sildiğinizde bu işlem geri alınamaz.</p>
+                            <button type="button" onclick="hesapSil()" class="btn btn-outline-danger btn-sm fw-bold rounded-pill px-4">Hesabı Kalıcı Olarak Sil</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="mobile-bottom-nav">
+        <a href="/ogrenci" class="mobile-nav-item"><i class="fa-solid fa-compass"></i><span>Keşfet</span></a>
+        <a href="/harita" class="mobile-nav-item"><i class="fa-solid fa-map-location-dot"></i><span>Harita</span></a>
+        <a href="/favorilerim" class="mobile-nav-item">
+            <div style="background: #f1f2f6; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-top: -25px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); border: 4px solid white;">
+                <i class="fa-solid fa-heart text-muted" style="font-size: 1.2rem; margin:0;"></i>
+            </div>
+            <span style="margin-top: 5px;">Favoriler</span>
+        </a>
+        <a href="/siparislerim" class="mobile-nav-item"><i class="fa-solid fa-receipt"></i><span>Sipariş</span></a>
+        <a href="/ayarlar" class="mobile-nav-item active"><i class="fa-solid fa-gear"></i><span>Ayarlar</span></a>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function previewFile() { 
+            const preview = document.getElementById('previewImg'); 
+            const file = document.getElementById('fileInput').files[0]; 
+            const reader = new FileReader(); 
+            reader.onload = function(){ preview.src = reader.result; }; 
+            if(file){ reader.readAsDataURL(file); } 
+        }
+        function konumGuncelle() { 
+            if (navigator.geolocation) { 
+                navigator.geolocation.getCurrentPosition((pos) => { 
+                    document.getElementById('latInput').value = pos.coords.latitude; 
+                    document.getElementById('lngInput').value = pos.coords.longitude; 
+                    document.getElementById('locationStatus').innerHTML = `<span class='text-success fw-bold'>${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)}</span>`; 
+                    Swal.fire({icon: 'success', title: 'Konum Güncellendi', timer: 1500, showConfirmButton: false}); 
+                }); 
+            } 
+        }
+        function hesapSil() { 
+            Swal.fire({
+                title:'Emin misiniz?', 
+                text:'Hesabınız silindiğinde tüm verileriniz kaybolacak!', 
+                icon:'warning', 
+                showCancelButton:true, 
+                confirmButtonColor:'#dc3545', 
+                confirmButtonText:'Evet, Sil',
+                cancelButtonText: 'İptal'
+            }).then((r)=>{ if(r.isConfirmed) window.location.href="/hesap-sil-kendi"; }); 
+        }
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+             {% for category, message in messages %}
+                Swal.fire({icon: '{{ "success" if category == "success" else "info" }}', title: '{{ message }}', timer: 2000, showConfirmButton: false});
+             {% endfor %}
+          {% endif %}
+        {% endwith %}
+    </script>
+</body>
+</html>

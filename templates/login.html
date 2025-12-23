@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giriş Yap | IMC</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-color: #00b894;
+            --dark-color: #2d3436;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            background-color: #fff;
+        }
+
+        .login-wrapper {
+            display: flex;
+            height: 100%;
+        }
+
+        /* SOL TARAF (Görsel & Hakkında) */
+        .login-visual {
+            flex: 1;
+            background: url('https://images.unsplash.com/photo-1498837167922-ddd27525d352?q=80&w=2070&auto=format&fit=crop') center/cover no-repeat;
+            position: relative;
+            display: none; /* Mobilde gizli */
+            animation: slideInLeft 1s ease-out;
+        }
+
+            .login-visual::before {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background: linear-gradient(135deg, rgba(45, 52, 54, 0.85), rgba(0, 184, 148, 0.8));
+            }
+
+        .visual-content {
+            position: relative;
+            z-index: 2;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* İçeriği alt ve üste yay */
+            padding: 60px;
+            color: white;
+        }
+
+        /* YENİ: HAKKIMIZDA KARTI (Glassmorphism) */
+        .about-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px); /* Buzlu cam efekti */
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 25px;
+            border-radius: 20px;
+            margin-top: auto;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+            .contact-item i {
+                width: 20px;
+                text-align: center;
+                color: #55efc4;
+            }
+
+        /* SAĞ TARAF (Form) */
+        .login-form-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            background: white;
+            animation: slideInRight 1s ease-out;
+            position: relative;
+        }
+
+        .form-box {
+            width: 100%;
+            max-width: 420px;
+        }
+
+        .nav-pills .nav-link {
+            color: #b2bec3;
+            font-weight: 600;
+            padding: 12px;
+            border-radius: 12px;
+            transition: 0.3s;
+            width: 100%;
+            text-align: center;
+        }
+
+            .nav-pills .nav-link.active {
+                background-color: var(--primary-color);
+                color: white;
+                box-shadow: 0 5px 15px rgba(0, 184, 148, 0.3);
+            }
+
+        .form-floating > .form-control:focus ~ label {
+            color: var(--primary-color);
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(0, 184, 148, 0.2);
+        }
+
+        .btn-brand {
+            background: var(--dark-color);
+            color: white;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: 700;
+            width: 100%;
+            border: none;
+            transition: 0.3s;
+        }
+
+            .btn-brand:hover {
+                background: black;
+                transform: translateY(-2px);
+                box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            }
+
+        .btn-loc {
+            border: 1px dashed #b2bec3;
+            background: #f9f9f9;
+            color: #636e72;
+            padding: 10px;
+            width: 100%;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            transition: 0.3s;
+        }
+
+            .btn-loc:hover {
+                border-color: var(--primary-color);
+                color: var(--primary-color);
+                background: #e6fffa;
+            }
+
+        @media (min-width: 992px) {
+            .login-visual {
+                display: block;
+            }
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-wrapper">
+        <div class="login-visual">
+            <div class="visual-content">
+                <div>
+                    <h1 class="display-3 fw-bold mb-3">Gıdayı Kurtar,<br>Geleceği Koru.</h1>
+                    <p class="fs-5 opacity-75">IMC ile israfı önle, bütçeni koru ve sürdürülebilir bir dünyaya katkıda bulun.</p>
+                </div>
+
+                <div class="about-card">
+                    <h5 class="fw-bold mb-3"><i class="fa-solid fa-circle-info me-2"></i> Hakkımızda & İletişim</h5>
+                    <p class="small opacity-75 mb-3">
+                        IMC Projesi, gıda israfını önlemek amacıyla geliştirilmiş, öğrenci dostu bir sosyal girişim platformudur.
+                    </p>
+                    <div class="contact-info">
+                        <div class="contact-item"><i class="fa-solid fa-location-dot"></i> Anadolu Üniversitesi Teknopark, Eskişehir</div>
+                        <div class="contact-item"><i class="fa-solid fa-phone"></i> +90 555 000 00 00</div>
+                        <div class="contact-item"><i class="fa-solid fa-envelope"></i> destek@imcproje.com</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="login-form-container">
+            <div class="form-box">
+                <div class="text-center mb-5">
+                    <i class="fa-solid fa-leaf fa-3x text-success mb-2"></i>
+                    <h3 class="fw-bold">Hoş Geldiniz</h3>
+                    <p class="text-muted">Devam etmek için giriş yapın veya kayıt olun.</p>
+                </div>
+
+                <ul class="nav nav-pills nav-fill mb-4 p-1 bg-light rounded-4" id="pills-tab" role="tablist">
+                    <li class="nav-item"><button class="nav-link active" id="pills-login-tab" data-bs-toggle="pill" data-bs-target="#pills-login">Giriş Yap</button></li>
+                    <li class="nav-item"><button class="nav-link" id="pills-register-tab" data-bs-toggle="pill" data-bs-target="#pills-register">Kayıt Ol</button></li>
+                </ul>
+
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" id="pills-login">
+                        <form action="/giris" method="POST">
+                            <div class="form-floating mb-3">
+                                <input type="email" class="form-control" name="email" placeholder="name@example.com" required>
+                                <label>E-Posta Adresi</label>
+                            </div>
+                            <div class="form-floating mb-2">
+                                <input type="password" class="form-control" name="sifre" placeholder="Şifre" required>
+                                <label>Şifre</label>
+                            </div>
+
+                            <div class="text-end mb-4">
+                                <a href="/sifremi-unuttum" class="text-decoration-none small text-muted fw-bold">Şifremi Unuttum?</a>
+                            </div>
+
+                            <button type="submit" class="btn-brand">Giriş Yap <i class="fa-solid fa-arrow-right ms-2"></i></button>
+                        </form>
+                    </div>
+
+                    <div class="tab-pane fade" id="pills-register">
+                        <form action="/kayit" method="POST">
+                            <div class="row g-2 mb-3">
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="text" class="form-control" name="ad_soyad" placeholder="Ad Soyad" required>
+                                        <label>Ad Soyad / İşletme</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <select class="form-select" name="rol" style="height: 58px;" required>
+                                        <option value="ogrenci">Öğrenci 🎓</option>
+                                        <option value="esnaf">İşletme 🏪</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-floating mb-3">
+                                <input type="email" class="form-control" name="email" placeholder="E-Posta" required>
+                                <label>E-Posta Adresi</label>
+                            </div>
+                            <div class="form-floating mb-3">
+                                <input type="password" class="form-control" name="sifre" placeholder="Şifre" required>
+                                <label>Şifre</label>
+                            </div>
+
+                            <div class="mb-4">
+                                <button type="button" class="btn-loc" onclick="konumAl()">
+                                    <i class="fa-solid fa-location-crosshairs me-1"></i> Konumumu Al (Zorunlu)
+                                </button>
+                                <input type="hidden" name="enlem" id="reg_lat">
+                                <input type="hidden" name="boylam" id="reg_lng">
+                                <div id="locMsg" class="small text-success mt-1 text-center" style="display:none;">Konum alındı!</div>
+                            </div>
+
+                            <button type="submit" class="btn-brand">Hesap Oluştur</button>
+                        </form>
+                    </div>
+                </div>
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                <div class="mt-4">
+                    {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} py-2 small shadow-sm border-0">{{ message }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% endwith %}
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function konumAl() {
+            const btn = document.querySelector('.btn-loc');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Alınıyor...';
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                        document.getElementById('reg_lat').value = pos.coords.latitude;
+                        document.getElementById('reg_lng').value = pos.coords.longitude;
+                        btn.className = "btn-loc bg-success text-white border-success";
+                        btn.innerHTML = '<i class="fa-solid fa-check"></i> Konum Hazır';
+                        document.getElementById('locMsg').style.display = 'block';
+                    },
+                    () => { btn.innerHTML = 'Hata! Tekrar Dene'; }
+                );
+            }
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

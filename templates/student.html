@@ -1,0 +1,648 @@
+﻿<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ 'Favorilerim' if sayfa_tipi == 'favori' else 'Keşfet' }} | IMC</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- ORTAK TASARIM DİLİ --- */
+        :root {
+            --primary-color: #00b894;
+            --primary-light: rgba(0, 184, 148, 0.1);
+            --dark-color: #2d3436;
+            --bg-color: #f5f6fa;
+            --sidebar-width: 280px;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            overflow-x: hidden;
+            color: var(--dark-color);
+            scroll-behavior: smooth; /* Tüm sayfa için yumuşak kaydırma */
+        }
+
+        .layout-wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: white;
+            border-right: 1px solid #eee;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            z-index: 99;
+        }
+
+        .navbar-logo {
+            height: 200px;
+            width: auto;
+            object-fit: contain;
+            margin-bottom: 20px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .nav-link {
+            color: #636e72;
+            font-weight: 600;
+            padding: 12px 20px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+
+            .nav-link i {
+                width: 30px;
+                font-size: 1.1rem;
+                text-align: center;
+                margin-right: 10px;
+            }
+
+            .nav-link:hover {
+                background: #f1f2f6;
+                color: var(--dark-color);
+            }
+
+            .nav-link.active {
+                background: var(--dark-color);
+                color: white;
+                box-shadow: 0 5px 15px rgba(45, 52, 54, 0.2);
+            }
+
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 40px;
+        }
+
+        /* --- ARAMA & FİLTRE ALANI --- */
+        .top-action-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            align-items: center;
+        }
+
+        .search-form {
+            flex: 1;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            border: 1px solid #eee;
+            border-radius: 15px;
+            padding: 15px 50px 15px 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.02);
+            font-size: 0.95rem;
+        }
+
+        .btn-search-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: none;
+            background: transparent;
+            color: var(--primary-color);
+        }
+
+        .btn-filter {
+            background: white;
+            border: 1px solid #eee;
+            padding: 12px 20px;
+            border-radius: 15px;
+            color: var(--dark-color);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.2s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.02);
+        }
+
+            .btn-filter:hover {
+                background: var(--dark-color);
+                color: white;
+            }
+
+        /* Ürün Kartları */
+        .food-card {
+            background: white;
+            border-radius: 24px;
+            overflow: hidden;
+            border: 1px solid #eee;
+            transition: 0.3s;
+            height: 100%;
+        }
+
+            .food-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 15px 30px rgba(0,0,0,0.05);
+            }
+
+        .card-img-top {
+            height: 200px;
+            object-fit: cover;
+        }
+
+        /* --- MODERN OFFCANVAS FİLTRE TASARIMI --- */
+        .offcanvas {
+            border-top-left-radius: 30px;
+            border-bottom-left-radius: 30px;
+        }
+
+        .filter-header {
+            padding: 25px;
+        }
+
+        .filter-body {
+            padding: 0 25px 25px 25px;
+        }
+
+        .filter-section-title {
+            font-size: 0.85rem;
+            color: #b2bec3;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        /* Modern Radyo Kartları */
+        .filter-option-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 20px;
+            border: 2px solid #f1f2f6;
+            border-radius: 16px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: white;
+            color: #636e72;
+            font-weight: 500;
+        }
+
+            .filter-option-card:hover {
+                border-color: #dfe6e9;
+            }
+
+            .filter-option-card i {
+                font-size: 1.1rem;
+                width: 24px;
+            }
+
+        /* Radyo butonu seçilince stil değişimi */
+        .btn-check:checked + .filter-option-card {
+            border-color: var(--primary-color);
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+
+        .check-icon {
+            display: none;
+        }
+
+        .btn-check:checked + .filter-option-card .check-icon {
+            display: block;
+        }
+
+        /* Fiyat Inputları */
+        .price-input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .price-box {
+            background: #f1f2f6;
+            border-radius: 12px;
+            padding: 10px 15px;
+            flex: 1;
+            border: 2px solid transparent;
+            transition: 0.2s;
+        }
+
+            .price-box:focus-within {
+                border-color: var(--primary-color);
+                background: white;
+            }
+
+            .price-box input {
+                width: 100%;
+                border: none;
+                background: transparent;
+                outline: none;
+                font-weight: 600;
+                color: var(--dark-color);
+            }
+
+            .price-box label {
+                font-size: 0.75rem;
+                color: #b2bec3;
+                display: block;
+                margin-bottom: 2px;
+            }
+
+        /* Stok Switch */
+        .stock-switch-card {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            border-radius: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .form-check-input:checked {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        /* --- SCROLL TO TOP BUTONU --- */
+        #scrollTopBtn {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 999;
+            border: none;
+            outline: none;
+            background-color: var(--primary-color);
+            color: white;
+            cursor: pointer;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            opacity: 0; /* Başlangıçta gizli */
+            visibility: hidden;
+            transition: all 0.3s ease-in-out;
+            transform: translateY(20px);
+        }
+
+            #scrollTopBtn:hover {
+                background-color: var(--dark-color);
+                transform: translateY(-5px);
+            }
+
+            /* Buton görünür olduğunda */
+            #scrollTopBtn.show {
+                opacity: 1;
+                visibility: visible;
+                transform: translateY(0);
+            }
+
+
+        /* Mobil Uyum */
+        .mobile-nav {
+            display: none;
+        }
+
+        @media (max-width: 991px) {
+            .sidebar {
+                display: none;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+                padding-bottom: 100px;
+            }
+
+            /* Mobilde Yukarı Çık butonunu yukarı kaydır (Navbara çarpmasın) */
+            #scrollTopBtn {
+                bottom: 85px;
+                right: 20px;
+                width: 45px;
+                height: 45px;
+            }
+
+            .mobile-nav {
+                display: flex;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                background: white;
+                padding: 12px 0;
+                justify-content: space-around;
+                border-top: 1px solid #eee;
+                z-index: 1000;
+            }
+
+            .mobile-item {
+                text-align: center;
+                color: #b2bec3;
+                text-decoration: none;
+                font-size: 0.75rem;
+                font-weight: 700;
+            }
+
+                .mobile-item i {
+                    font-size: 1.4rem;
+                    display: block;
+                    margin-bottom: 3px;
+                }
+
+                .mobile-item.active {
+                    color: var(--primary-color);
+                }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="layout-wrapper">
+        <div class="sidebar d-none d-lg-flex">
+            <img src="{{ url_for('static', filename='img/logo.png') }}" class="navbar-logo">
+            <div class="text-center mb-4">
+                <div class="fw-bold fs-5">{{ kullanici }}</div>
+                <span class="badge bg-{{ rozet_renk }} rounded-pill mt-1">{{ rozet }}</span>
+            </div>
+
+            <nav class="nav flex-column">
+                <a href="/ogrenci" class="nav-link {{ 'active' if sayfa_tipi != 'favori' else '' }}"><i class="fa-solid fa-compass"></i> Keşfet</a>
+                <a href="/harita" class="nav-link"><i class="fa-solid fa-map-location-dot"></i> Harita</a>
+                <a href="/favorilerim" class="nav-link {{ 'active' if sayfa_tipi == 'favori' else '' }}"><i class="fa-solid fa-heart"></i> Favoriler</a>
+                <a href="/siparislerim" class="nav-link"><i class="fa-solid fa-receipt"></i> Siparişlerim</a>
+            </nav>
+
+            <div class="mt-auto">
+                <a href="/ayarlar" class="nav-link"><i class="fa-solid fa-gear"></i> Ayarlar</a>
+                <a href="/cikis" class="nav-link text-danger"><i class="fa-solid fa-power-off"></i> Çıkış</a>
+            </div>
+        </div>
+
+        <div class="main-content">
+
+            <div class="top-action-bar">
+                <form action="/ogrenci" class="search-form" id="mainSearchForm">
+                    <input type="text" name="q" class="search-input" placeholder="Yemek veya restoran ara..." value="{{ arama_terimi }}">
+                    <input type="hidden" name="min_fiyat" value="{{ secili_filtreler.min }}">
+                    <input type="hidden" name="max_fiyat" value="{{ secili_filtreler.max }}">
+                    <input type="hidden" name="siralama" value="{{ secili_filtreler.sort }}">
+                    {% if secili_filtreler.stok %}<input type="hidden" name="sadece_stok" value="on">{% endif %}
+
+                    <button type="submit" class="btn-search-icon"><i class="fa-solid fa-magnifying-glass"></i></button>
+                </form>
+
+                <button class="btn-filter" type="button" data-bs-toggle="offcanvas" data-bs-target="#filterMenu">
+                    <i class="fa-solid fa-sliders"></i> <span class="d-none d-md-inline">Filtrele</span>
+                </button>
+
+                <a href="/ayarlar" class="d-none d-lg-block">
+                    <img src="{{ url_for('static', filename='uploads/' + session.get('foto', 'default.png')) }}" style="width:55px; height:55px; border-radius:15px; object-fit:cover; border:1px solid #eee;">
+                </a>
+            </div>
+
+            <h3 class="fw-bold mb-4">{{ 'Favori Lezzetlerin' if sayfa_tipi == 'favori' else 'Bugün Ne Kurtarmak İstersin?' }}</h3>
+
+            <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+                {% for urun in urunler %}
+                <div class="col">
+                    <div class="food-card">
+                        <div class="position-relative">
+                            <img src="{{ url_for('static', filename='uploads/' + (urun.resim if urun.resim else 'default_food.png')) }}" class="card-img-top">
+
+                            {% if urun.indirim_orani > 0 %}
+                            <span class="position-absolute top-0 start-0 m-3 badge bg-danger rounded-pill px-3 py-2">%{{ urun.indirim_orani }} İndirim</span>
+                            {% endif %}
+                            <span class="position-absolute top-0 end-0 m-3 badge bg-light text-dark rounded-pill px-3 py-2"><i class="fa-solid fa-location-dot me-1"></i> {{ urun.mesafe }} km</span>
+
+                            <a href="/favori-islem/{{ urun.id }}" class="position-absolute bottom-0 end-0 m-3 bg-white rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width:40px; height:40px; color: {{ '#ff4757' if urun.favori_mi else '#ccc' }};"><i class="fa-solid fa-heart"></i></a>
+                        </div>
+                        <div class="p-3">
+                            <small class="text-muted fw-bold">{{ urun.restoran_adi }}</small>
+                            <h5 class="fw-bold mb-2 text-truncate">{{ urun.ad }}</h5>
+
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <div>
+                                    <h4 class="fw-bold text-success mb-0">{{ urun.yeni_fiyat }}₺</h4>
+                                    {% if urun.eski_fiyat %}
+                                    <small class="text-decoration-line-through text-muted">{{ urun.eski_fiyat }}₺</small>
+                                    {% endif %}
+                                </div>
+                                <form action="/satin-al" method="POST">
+                                    <input type="hidden" name="urun_id" value="{{ urun.id }}">
+                                    {% if urun.stok > 0 %}
+                                    <button class="btn btn-dark rounded-pill px-3 py-2 btn-sm fw-bold">Sepete Ekle</button>
+                                    {% else %}
+                                    <button type="button" class="btn btn-light text-muted border rounded-pill px-3 py-2 btn-sm" disabled>Tükendi</button>
+                                    {% endif %}
+                                </form>
+                            </div>
+                            <div class="progress mt-3" style="height: 5px;">
+                                <div class="progress-bar {{ 'bg-danger' if urun.stok < 3 else 'bg-success' }}" style="width: {{ (urun.stok / 10) * 100 }}%"></div>
+                            </div>
+                            <small class="text-muted mt-1 d-block" style="font-size: 0.7rem;">
+                                {{ 'Kritik Stok!' if urun.stok < 3 else 'Stok Durumu: ' + urun.stok|string }}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="col-12 w-100 d-flex flex-column align-items-center justify-content-center text-center py-5" style="min-height: 50vh;">
+
+                    {% if sayfa_tipi == 'favori' %}
+                    <div class="bg-light rounded-circle d-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                        <i class="fa-regular fa-heart fa-2x text-muted opacity-50"></i>
+                    </div>
+                    <h4 class="text-muted fw-bold">Henüz favori ürünün yok.</h4>
+                    <p class="text-muted small mb-4">Beğendiğin lezzetleri kalp ikonuna tıklayarak listene ekleyebilirsin.</p>
+                    <a href="/ogrenci" class="btn btn-dark rounded-pill px-4 py-2 fw-bold">
+                        <i class="fa-solid fa-utensils me-2"></i> Lezzetleri Keşfet
+                    </a>
+
+                    {% else %}
+                    <div class="bg-light rounded-circle d-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                        <i class="fa-solid fa-magnifying-glass fa-2x text-muted opacity-50"></i>
+                    </div>
+                    <h4 class="text-muted fw-bold">Aradığın kriterlere uygun ürün yok.</h4>
+                    <p class="text-muted small mb-4">Farklı filtreler deneyebilir veya arama terimini değiştirebilirsin.</p>
+                    <a href="/ogrenci" class="btn btn-outline-dark rounded-pill px-4 py-2">
+                        Filtreleri Temizle
+                    </a>
+                    {% endif %}
+
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="filterMenu">
+        <div class="filter-header d-flex justify-content-between align-items-center">
+            <h4 class="offcanvas-title fw-bold">Filtrele & Sırala</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+        </div>
+
+        <div class="offcanvas-body filter-body">
+            <form action="/ogrenci" method="GET">
+                <input type="hidden" name="q" value="{{ arama_terimi }}">
+
+                <div class="mb-4">
+                    <label class="filter-section-title">Sıralama Ölçütü</label>
+
+                    <input type="radio" class="btn-check" name="siralama" id="sort1" value="varsayilan" {{ 'checked' if secili_filtreler.sort == 'varsayilan' }}>
+                    <label class="filter-option-card" for="sort1">
+                        <span><i class="fa-solid fa-star me-2"></i>Önerilen</span>
+                        <i class="fa-solid fa-check check-icon"></i>
+                    </label>
+
+                    <input type="radio" class="btn-check" name="siralama" id="sort2" value="fiyat_artan" {{ 'checked' if secili_filtreler.sort == 'fiyat_artan' }}>
+                    <label class="filter-option-card" for="sort2">
+                        <span><i class="fa-solid fa-arrow-up-wide-short me-2"></i>En Düşük Fiyat</span>
+                        <i class="fa-solid fa-check check-icon"></i>
+                    </label>
+
+                    <input type="radio" class="btn-check" name="siralama" id="sort3" value="fiyat_azalan" {{ 'checked' if secili_filtreler.sort == 'fiyat_azalan' }}>
+                    <label class="filter-option-card" for="sort3">
+                        <span><i class="fa-solid fa-arrow-down-wide-short me-2"></i>En Yüksek Fiyat</span>
+                        <i class="fa-solid fa-check check-icon"></i>
+                    </label>
+
+                    <input type="radio" class="btn-check" name="siralama" id="sort4" value="mesafe" {{ 'checked' if secili_filtreler.sort == 'mesafe' }}>
+                    <label class="filter-option-card" for="sort4">
+                        <span><i class="fa-solid fa-location-arrow me-2"></i>En Yakın</span>
+                        <i class="fa-solid fa-check check-icon"></i>
+                    </label>
+
+                    <input type="radio" class="btn-check" name="siralama" id="sort5" value="indirim" {{ 'checked' if secili_filtreler.sort == 'indirim' }}>
+                    <label class="filter-option-card" for="sort5">
+                        <span><i class="fa-solid fa-percent me-2"></i>En Çok İndirim</span>
+                        <i class="fa-solid fa-check check-icon"></i>
+                    </label>
+                </div>
+
+                <div class="mb-4">
+                    <label class="filter-section-title">Fiyat Aralığı (TL)</label>
+                    <div class="price-input-group">
+                        <div class="price-box">
+                            <label>Min</label>
+                            <input type="number" name="min_fiyat" placeholder="0" value="{{ secili_filtreler.min }}">
+                        </div>
+                        <span class="text-muted">-</span>
+                        <div class="price-box">
+                            <label>Max</label>
+                            <input type="number" name="max_fiyat" placeholder="500" value="{{ secili_filtreler.max }}">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="filter-section-title">Diğer Seçenekler</label>
+                    <div class="stock-switch-card">
+                        <label class="form-check-label fw-bold m-0" for="stockSwitch" style="font-size: 0.95rem;">
+                            Sadece Stoktakiler
+                        </label>
+                        <div class="form-check form-switch m-0">
+                            <input class="form-check-input" type="checkbox" name="sadece_stok" id="stockSwitch" style="width: 3em; height: 1.5em;" {{ 'checked' if secili_filtreler.stok }}>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-5">
+                    <button type="submit" class="btn btn-dark w-100 py-3 rounded-4 fw-bold shadow-sm" style="background-color: var(--dark-color);">
+                        Sonuçları Göster
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <button id="scrollTopBtn" onclick="scrollToTop()">
+        <i class="fa-solid fa-arrow-up"></i>
+    </button>
+
+    <div class="mobile-nav">
+        <a href="/ogrenci" class="mobile-item {{ 'active' if sayfa_tipi != 'favori' and request.path != '/ayarlar' else '' }}">
+            <i class="fa-solid fa-compass"></i>Keşfet
+        </a>
+
+        <a href="/harita" class="mobile-item">
+            <i class="fa-solid fa-map-location-dot"></i>Harita
+        </a>
+
+        <a href="/ayarlar" class="mobile-item" style="position: relative; bottom: 5px;">
+            <img src="{{ url_for('static', filename='uploads/' + session.get('foto', 'default.png')) }}"
+                 style="width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 2px solid {{ '#00b894' if request.path == '/ayarlar' else '#dfe6e9' }}; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+            <span style="display: block; font-size: 0.7rem; margin-top: 2px;">Ben</span>
+        </a>
+
+        <a href="/favorilerim" class="mobile-item {{ 'active' if sayfa_tipi == 'favori' else '' }}">
+            <i class="fa-solid fa-heart"></i>Favoriler
+        </a>
+
+        <a href="/siparislerim" class="mobile-item">
+            <i class="fa-solid fa-receipt"></i>Sipariş
+        </a>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+             {% for category, message in messages %}
+                Swal.fire({
+                    icon: '{{ "success" if category == "success" else ("error" if category == "danger" else "info") }}',
+                    title: '{{ message }}',
+                    timer: 2000,
+                    showConfirmButton: false,
+                    toast: true,
+                    position: 'top-end'
+                });
+             {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        // --- SCROLL TO TOP FONKSİYONU ---
+        // Butonu seç
+        let mybutton = document.getElementById("scrollTopBtn");
+
+        // Sayfa aşağı kaydırıldığında tetiklenir
+        window.onscroll = function() {scrollFunction()};
+
+        function scrollFunction() {
+            // 300px aşağı inilince butonu göster
+            if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                mybutton.classList.add("show");
+            } else {
+                mybutton.classList.remove("show");
+            }
+        }
+
+        // Butona basılınca en tepeye çık
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+    </script>
+</body>
+</html>

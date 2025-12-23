@@ -1,0 +1,173 @@
+﻿<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>İşletme Raporları - IMC</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            background-color: #f3f4f6;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .stat-card {
+            border: none;
+            border-radius: 15px;
+            padding: 20px;
+            background: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: 0.3s;
+        }
+
+            .stat-card:hover {
+                transform: translateY(-5px);
+            }
+
+        .icon-box {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            margin-bottom: 15px;
+        }
+
+        .bg-gradient-green {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+        }
+
+        .bg-gradient-blue {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+        }
+
+        .bg-gradient-orange {
+            background: linear-gradient(135deg, #f1c40f, #f39c12);
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container my-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h3 class="fw-bold mb-0">İşletme Analitikleri 📊</h3>
+                <p class="text-muted">Performans raporlarınıza göz atın.</p>
+            </div>
+            <a href="/esnaf" class="btn btn-dark rounded-pill px-4"><i class="fa-solid fa-arrow-left"></i> Panele Dön</a>
+        </div>
+
+        <div class="row g-4 mb-5">
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="icon-box bg-gradient-green"><i class="fa-solid fa-wallet"></i></div>
+                    <h5 class="text-muted small fw-bold">TOPLAM KAZANÇ</h5>
+                    <h2 class="fw-bold mb-0">{{ toplam_kazanc }}₺</h2>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="icon-box bg-gradient-blue"><i class="fa-solid fa-bag-shopping"></i></div>
+                    <h5 class="text-muted small fw-bold">TAMAMLANAN SİPARİŞ</h5>
+                    <h2 class="fw-bold mb-0">{{ toplam_siparis }} Adet</h2>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="icon-box bg-gradient-orange"><i class="fa-solid fa-chart-line"></i></div>
+                    <h5 class="text-muted small fw-bold">ORTALAMA SEPET TUTARI</h5>
+                    <h2 class="fw-bold mb-0">
+                        {% if toplam_siparis > 0 %}
+                        {{ (toplam_kazanc / toplam_siparis)|round(1) }}₺
+                        {% else %}
+                        0₺
+                        {% endif %}
+                    </h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="chart-container text-center">
+                    <h5 class="fw-bold mb-4">🏆 En Çok Satan Ürünler</h5>
+                    {% if toplam_siparis > 0 %}
+                    <canvas id="myPieChart"></canvas>
+                    {% else %}
+                    <p class="text-muted py-5">Veri oluşması için satış yapmalısınız.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h5 class="fw-bold mb-4">📈 Haftalık Performans (Demo)</h5>
+                    <canvas id="myBarChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Python'dan gelen verileri JS değişkenine al
+        // 'safe' filtresi stringleri düzgün formatlamak için önemli
+        var urunIsimleri = {{ urun_isimleri | tojson | safe }};
+        var satisSayilari = {{ satis_sayilari | tojson | safe }};
+
+        // 1. PASTA GRAFİĞİ
+        const ctxPie = document.getElementById('myPieChart');
+        if (ctxPie) {
+            new Chart(ctxPie, {
+                type: 'doughnut',
+                data: {
+                    labels: urunIsimleri,
+                    datasets: [{
+                        data: satisSayilari,
+                        backgroundColor: ['#2ecc71', '#3498db', '#f1c40f', '#e74c3c', '#9b59b6'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+        }
+
+        // 2. BAR GRAFİĞİ (Şimdilik Demo Veri Basıyoruz - Dolu görünsün diye)
+        const ctxBar = document.getElementById('myBarChart');
+        new Chart(ctxBar, {
+            type: 'bar',
+            data: {
+                labels: ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'],
+                datasets: [{
+                    label: 'Satış Adedi',
+                    data: [12, 19, 3, 5, 2, 3, 10], // Demo Veri
+                    backgroundColor: '#000',
+                    borderRadius: 5
+                }]
+            },
+            options: {
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
